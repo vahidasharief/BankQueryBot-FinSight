@@ -10,9 +10,10 @@ It provides accurate, document-grounded answers to customer questions using offi
 ### 🏦 1. Bank-Specific Knowledge
 FinSight supports multiple major Indian banks:
 - **HSBC**
+- **Canara Bank**
 - **HDFC**
 - **ICICI**
-- **Canara Bank**
+
 
 Each bank has its own FAISS vector index built from official PDFs, enabling domain-specific responses.  
 No cross-contamination — HSBC answers never come from HDFC docs.
@@ -116,3 +117,62 @@ If retrieval confidence is too low → immediate fallback message:
 ## 🧩 Example Outputs
 
 ### Example 1 — Relevant Query
+**Query:**  
+> “How much house loan hsbc provides”
+
+**Response:**  
+<img width="3200" height="1900" alt="resposne_hsbc1" src="https://github.com/user-attachments/assets/3c670f5b-82d6-40e0-a091-c88b4b1a163d" />
+
+
+### Example 2 — Relavant Query 2
+**Query:**  
+> “What are the intrest changes on the Personal Loan amout for EMI”
+
+**Response:**  
+<img width="3196" height="1936" alt="response2_hsbc" src="https://github.com/user-attachments/assets/90b9c362-bd42-4a61-bbc6-c305784d36b0" />
+
+### Example 3 — Relavant Query 3
+**Query:**  
+> “What are the documents required for personal loan?”
+
+**Response:**  
+<img width="3200" height="1998" alt="HSDF_RES1" src="https://github.com/user-attachments/assets/e86ed8a4-aadc-4792-b5c3-76ff86bdaede" />
+
+.
+### Example 3 — Irrelavant Query 1
+**Query:**  
+> “Who invented AI?”
+
+**Response:**  
+<img width="3200" height="1928" alt="irrevant" src="https://github.com/user-attachments/assets/b5294287-7a55-492f-ab50-980eeeb4fd68" />
+
+### Example 4 — Irrelavant Query 2
+**Query:**  
+> “Who won recent cricket match between ind vs pak”
+
+**Response:**  
+<img width="3188" height="1946" alt="irrelavant2" src="https://github.com/user-attachments/assets/507eca1a-489b-4aab-a4da-d60b61ec4e43" />
+
+
+
+
+
+## 🧠 Key Strengths
+- 100% Local & Private — no cloud calls, no data leakage.  
+- Modular — each bank operates on its own index.  
+- Configurable — easily extend to more banks or domains.  
+- Interview-ready project — demonstrates RAG design, embeddings, LLM integration, and safe fallbacks.
+
+---
+
+## 🏁 Summary
+FinSight showcases a real-world RAG workflow implemented end-to-end:
+> **Retrieval (FAISS)** → **Augmentation (context assembly)** → **Generation (Gemma 3 LLM)**
+
+It’s a perfect example of blending information retrieval with generative AI —  
+scalable, auditable, and practical for enterprise banking solutions.
+
+---
+
+## 📸 Screenshots Placeholder
+*(Add them before committing for visual impact)*  
