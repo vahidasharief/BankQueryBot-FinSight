@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Bank Query Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .bank-logo {
+            width: 120px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .bank-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .bank-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .bank-card.selected {
+            border: 2px solid #4F46E5;
+            background-color: #EEF2FF;
+        }
+
+        .chat-container {
+            height: calc(100vh - 320px);
+            min-height: 400px;
+        }
+
+        .typing-animation::after {
+            content: '...';
+            animation: typing 1s infinite;
+        }
+
+        @keyframes typing {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75% {
+                content: '...';
+            }
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Banking Information Assistant</h1>
+            <p class="text-gray-600">Get instant answers about banking services and policies</p>
+        </div>
+
+        <!-- Bank Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- HSBC -->
+            <div class="bank-card cursor-pointer bg-white rounded-lg p-4 shadow" data-bank="hsbc">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/aa/HSBC_logo_%282018%29.svg" alt="HSBC"
+                    class="bank-logo mx-auto mb-2">
+                <h3 class="text-center font-semibold text-gray-800">HSBC Bank</h3>
+            </div>
+            <!-- Canara -->
+            <div class="bank-card cursor-pointer bg-white rounded-lg p-4 shadow" data-bank="canara">
+                <img src="https://upload.wikimedia.org/wikipedia/en/9/9f/Canara_bank_logo.svg" alt="Canara"
+                    class="bank-logo mx-auto mb-2">
+                <h3 class="text-center font-semibold text-gray-800">Canara Bank</h3>
+            </div>
+            <!-- ICICI -->
+            <div class="bank-card cursor-pointer bg-white rounded-lg p-4 shadow" data-bank="icici">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg" alt="ICICI"
+                    class="bank-logo mx-auto mb-2">
+                <h3 class="text-center font-semibold text-gray-800">ICICI Bank</h3>
+            </div>
+            <!-- HDFC -->
+            <div class="bank-card cursor-pointer bg-white rounded-lg p-4 shadow" data-bank="hdfc">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/HDFC_Bank_Logo.svg" alt="HDFC"
+                    class="bank-logo mx-auto mb-2">
+                <h3 class="text-center font-semibold text-gray-800">HDFC Bank</h3>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="chat-container flex flex-col">
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto mb-4 space-y-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <p class="text-gray-800">👋 Hello! I'm your banking assistant. Please select a bank above and
+                            ask any questions about their services, policies, or products.</p>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="flex gap-4 items-end">
+                    <div class="flex-1 space-y-2">
+                        <textarea id="q"
+                            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                            rows="3" placeholder="Ask your question here..."></textarea>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center">
+                                <label class="text-sm text-gray-600 mr-2">Context depth:</label>
+                                <input id="topk" type="number" value="5" min="1" max="10"
+                                    class="w-16 p-1 border rounded text-center" />
+                            </div>
+                            <div id="selected-bank" class="text-sm text-gray-600"></div>
+                        </div>
+                    </div>
+                    <button id="ask" disabled
+                        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                        Ask Question
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedBank = null;
+        const chatMessages = document.getElementById('chat-messages');
+        const askButton = document.getElementById('ask');
+        const questionInput = document.getElementById('q');
+        const selectedBankDisplay = document.getElementById('selected-bank');
+
+        // Bank selection
+        document.querySelectorAll('.bank-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove previous selection
+                document.querySelectorAll('.bank-card').forEach(c => c.classList.remove('selected'));
+                // Add selection to clicked card
+                card.classList.add('selected');
+                selectedBank = card.dataset.bank;
+                selectedBankDisplay.textContent = `Selected: ${card.querySelector('h3').textContent}`;
+                askButton.disabled = !questionInput.value.trim();
+            });
+        });
+
+        // Enable/disable ask button based on input
+        questionInput.addEventListener('input', () => {
+            askButton.disabled = !questionInput.value.trim() || !selectedBank;
+        });
+
+        // Handle question submission
+        askButton.onclick = async () => {
+            const question = questionInput.value.trim();
+            const topk = parseInt(document.getElementById('topk').value || 5);
+
+            if (!question || !selectedBank) return;
+
+            // Add user question to chat
+            addMessage('user', question);
+            addTypingIndicator();
+            questionInput.value = '';
+            askButton.disabled = true;
+
+            try {
+                const res = await fetch("/api/query", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        question,
+                        top_k: topk,
+                        bank: selectedBank
+                    })
+                });
+                const data = await res.json();
+                removeTypingIndicator();
+
+                if (data.error) {
+                    addMessage('error', data.error);
+                    if (data.fallback_response) {
+                        addMessage('assistant', data.fallback_response);
+                    }
+                } else {
+                    addMessage('assistant', data.answer);
+                    if (data.retrieved && data.retrieved.length > 0) {
+                        addSources(data.retrieved);
+                    }
+                }
+            } catch (e) {
+                removeTypingIndicator();
+                addMessage('error', 'Error: ' + e.message);
+            }
+
+            askButton.disabled = false;
+        };
+
+        function addMessage(type, content) {
+            const div = document.createElement('div');
+            div.className = type === 'user'
+                ? 'bg-blue-50 p-4 rounded-lg'
+                : type === 'error'
+                    ? 'bg-red-50 p-4 rounded-lg'
+                    : 'bg-gray-50 p-4 rounded-lg';
+            div.innerHTML = `<p class="text-gray-800">${content}</p>`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addSources(sources) {
+            const div = document.createElement('div');
+            div.className = 'bg-gray-50 p-4 rounded-lg text-sm text-gray-600';
+            const sourceList = sources
+                .map(s => `${s.source} - page ${s.page} (relevance: ${Number(s.score).toFixed(3)})`)
+                .join('<br>');
+            div.innerHTML = `<p class="font-semibold mb-1">Sources:</p>${sourceList}`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const div = document.createElement('div');
+            div.className = 'typing-animation bg-gray-50 p-4 rounded-lg';
+            div.innerHTML = '<p class="text-gray-600">Thinking</p>';
+            div.id = 'typing-indicator';
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        // Handle enter key in textarea
+        questionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!askButton.disabled) {
+                    askButton.click();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
