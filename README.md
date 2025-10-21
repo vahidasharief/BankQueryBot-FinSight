@@ -75,10 +75,9 @@ If retrieval confidence is too low → immediate fallback message:
 |------------|-------------|
 | **Frontend** | Static HTML/JS (Flask static) |
 | **Backend Framework** | Flask (Python) |
-| **Embeddings** | SentenceTransformers (SBERT) |
+| **Embeddings** | SentenceTransformers (SBERT) all-MiniLM-L6-v2 |
 | **Vector Database** | FAISS |
 | **LLM** | Gemma 3:1B via Ollama |
-| **Storage** | JSON metadata + FAISS index per bank |
 | **Language** | Python 3.9+ |
 
 ---
@@ -158,21 +157,14 @@ If retrieval confidence is too low → immediate fallback message:
 
 
 ## 🧠 Key Strengths
-- 100% Local & Private — no cloud calls, no data leakage.  
+- 100% Local . 
 - Modular — each bank operates on its own index.  
-- Configurable — easily extend to more banks or domains.  
-- Interview-ready project — demonstrates RAG design, embeddings, LLM integration, and safe fallbacks.
+- Configurable — easily extend to more banks or domains by just converting them to embeddings.  
 
 ---
 
 ## 🏁 Summary
-FinSight showcases a real-world RAG workflow implemented end-to-end:
+FinSight is a real world--> RAG workflow implemented end-to-end:
 > **Retrieval (FAISS)** → **Augmentation (context assembly)** → **Generation (Gemma 3 LLM)**
 
-It’s a perfect example of blending information retrieval with generative AI —  
-scalable, auditable, and practical for enterprise banking solutions.
-
----
-
-## 📸 Screenshots Placeholder
-*(Add them before committing for visual impact)*  
+It’s usefull for people who want to compare differnt banks and get the resolution resolved instantly about policies , required docs etc....
