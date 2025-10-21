@@ -1,0 +1,10 @@
+flask
+faiss-cpu
+pymupdf
+openai
+tqdm
+numpy
+python-dotenv
+requests
+pydantic
+gunicorn
